@@ -4,7 +4,7 @@ const { Windower } = require("../windower");
 exports.Capturer = class Capturer {
   w = null;
 
-  constructor(w = Windower.create("capturer")) {
+  constructor(w = Windower.create("capturer", { transparent: true })) {
     console.info("Capturer#constructor");
     this.w = w;
   }

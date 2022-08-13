@@ -1,27 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
+const { Versioner } = require("../versioner");
 const axios = require("axios");
-
-class Versioner {
-  register() {
-    window.addEventListener("DOMContentLoaded", () => {
-      const replaceText = (selector, text) => {
-        const element = document.getElementById(selector);
-        if (element) element.innerText = text;
-      };
-
-      for (const dependency of ["chrome", "node", "electron"]) {
-        replaceText(`${dependency}-version`, process.versions[dependency]);
-      }
-    });
-  }
-
-  static create() {
-    const versioner = new Versioner();
-    versioner.register();
-
-    return versioner;
-  }
-}
 
 class ElectronAPI {
   register() {
@@ -97,9 +76,9 @@ class Snipper {
 
   uploadFile(blob) {
     const data = new FormData();
-    data.append("snap", blob, `snap_${Date.now().toLocaleString()}`);
+    data.append("snap", blob, `kuai-zhao_snap_${new Date().toISOString()}`);
 
-    axios.post("http://localhost:3001/snap", data);
+    axios.post("http://localhost:3001/snaps", data);
   }
 
   handleStreamError(error) {

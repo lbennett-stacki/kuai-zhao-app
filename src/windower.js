@@ -4,14 +4,15 @@ const { BrowserWindow } = require("electron");
 exports.Windower = class Windower {
   w = null;
   type = null;
-  constructor(type) {
+  constructor(type, options = { webPreferences: {} }) {
     this.type = type;
     this.w = new BrowserWindow({
-      transparent: true,
       frame: false,
       fullscreen: false,
+      ...options,
       webPreferences: {
         preload: join(__dirname, type, "preload.js"),
+        ...(options.webPreferences ? options.webPreferences : {}),
       },
     });
   }
