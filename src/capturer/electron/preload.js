@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
-const { Versioner } = require("../versioner");
 const axios = require("axios");
+const { Versioner } = require("../../utils/versioner");
 
 class ElectronAPI {
   register() {
@@ -44,8 +44,8 @@ class Snipper {
     video.onloadedmetadata = () => video.play();
 
     video.onplay = () => {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      canvas.width = plot.width;
+      canvas.height = plot.height;
 
       let ctx = canvas.getContext("2d");
       ctx.drawImage(
@@ -76,7 +76,7 @@ class Snipper {
 
   uploadFile(blob) {
     const data = new FormData();
-    data.append("snap", blob, `kuai-zhao_snap_${new Date().toISOString()}`);
+    data.append("snap", blob, `kuai-zhao_snap_${new Date().toISOString()}.jpg`);
 
     axios.post("http://localhost:3001/snaps", data);
   }

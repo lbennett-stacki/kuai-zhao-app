@@ -1,50 +1,29 @@
 #!/usr/bin/env node
 
-const { resolve } = require("path");
-const { copyFileSync } = require("fs");
-const chokidar = require("chokidar");
-
-class Pather {
-  static resolve(path) {
-    return resolve(__dirname, "..", path);
-  }
-}
-
-class Watcher {
-  srcPath = null;
-  watcher = null;
-
-  constructor(srcPath) {
-    this.srcPath = srcPath;
-  }
-
-  watch(callback) {
-    this.watcher = chokidar.watch(this.watchPaths, {
-      persistent: true,
-    });
-
-    this.watcher
-      .on("add", (path) => callback(path))
-      .on("change", (path) => callback(path))
-      .on("unlink", (path) => callback(path));
-  }
-
-  get watchPaths() {
-    return [this.srcPath, "package.json", "yarn.lock", "index.html"].map(
-      (path) => Pather.resolve(path)
-    );
-  }
-
-  close() {
-    return this.watcher.close();
-  }
-}
+const { existsSync, mkdirSync, copyFileSync } = require("fs");
+const { Watcher } = require("./watcher");
+const { Pather } = require("./pather");
 
 class Copier {
   static copy(path, root, win) {
     const destination = path.replace(root, win);
-    console.info(`Copying file ${path} to ${win}...`);
-    copyFileSync(path, destination);
+
+    let directory = destination.split("/");
+    directory.pop();
+    directory = directory.join("/");
+    if (!existsSync(directory)) {
+      console.info(`Making directory ${directory}...`);
+      mkdirSync(directory, { recursive: true });
+    }
+
+    const prettyPath = destination.replace(win, "").substr(1);
+    console.info(`Copying file ${prettyPath}...`);
+    try {
+      copyFileSync(path, destination);
+    } catch (error) {
+      console.error(`Failed to copy ${prettyPath}!`);
+      console.error(error.toString());
+    }
   }
 }
 
@@ -64,9 +43,12 @@ class Link {
   link() {
     this.captureInterupt();
     this.watcher = new Watcher(this.srcPath);
-    this.watcher.watch((path) =>
-      Copier.copy(path, this.rootPath, this.winPath)
-    );
+    this.watcher.watch((path) => {
+      if (path.includes("/node_modules/")) {
+        return;
+      }
+      Copier.copy(path, this.rootPath, this.winPath);
+    });
   }
 
   captureInterupt() {
@@ -81,8 +63,15 @@ class Link {
   }
 }
 
-new Link({
-  src: "src/**/*",
-  root: Pather.resolve(""),
-  win: "/home/lb/windows/workspace/personal/kuai-zhao-app",
-}).link();
+class Main {
+  static run() {
+    const link = new Link({
+      src: "src/**/*",
+      root: Pather.resolve(""),
+      win: "/home/lb/windows/workspace/personal/kuai-zhao-app",
+    });
+    link.link();
+  }
+}
+
+Main.run();

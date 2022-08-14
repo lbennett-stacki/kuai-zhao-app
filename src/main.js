@@ -1,34 +1,14 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
-const path = require("path");
-const { Capturer } = require("./capturer/backend");
-const { Viewer } = require("./viewer/backend");
-
-require("electron-reload")(path.resolve(__dirname, ".."), {
-  electron: path.resolve(__dirname, "..", "node_modules", ".bin", "electron"),
-  hardResetMethod: "exit",
-});
+const { app, BrowserWindow } = require("electron");
+const { Capturer } = require("./capturer/electron/backend");
+const { Viewer } = require("./viewer/electron/backend");
 
 const create = () => {
-  console.log("main#create");
-
-  setTimeout(() => {
+  setTimeout(async () => {
     const capturer = new Capturer();
+    await capturer.init();
+
     const viewer = new Viewer();
-    viewer.hide();
-
-    // TODO CHANGE PATTERN, MOVE OUT
-    //
-    ipcMain.on("SNIPPED", (_, data) => {
-      console.log("SNIPPED DATA", data.length);
-      capturer.show();
-      viewer.show();
-    });
-
-    ipcMain.on("SNIP", () => {
-      capturer.capture();
-    });
-    //
-    // TODO END
+    viewer.init();
   }, 300);
 };
 

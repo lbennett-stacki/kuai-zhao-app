@@ -6,19 +6,18 @@ class Bar {
   static BAR_WIDTH = 16;
 
   constructor(position, element) {
-    const fullWidthDimension = ["left", "right"].includes(position)
-      ? "height"
-      : "width";
+    const isLeftRight = ["left", "right"].includes(position);
+
+    const fullWidthDimension = isLeftRight ? "height" : "width";
     const thicknessDimension =
       fullWidthDimension === "height" ? "width" : "height";
     const pinPosition = position === "bottom" ? "bottom" : "top";
+
+    element.classList.add("bar");
     element.style[fullWidthDimension] = "100%";
     element.style[thicknessDimension] = `${Bar.BAR_WIDTH}px`;
-    element.style.backgroundColor = "#9f4141";
-    element.style.position = "absolute";
     element.style[pinPosition] = 0;
     element.style[position] = 0;
-    element.style.webkitAppRegion = "drag";
 
     this.element = element;
   }

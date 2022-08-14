@@ -1,4 +1,5 @@
-const { Windower } = require("../windower");
+const { ipcMain } = require("electron");
+const { Windower } = require("../../utils/windower");
 
 exports.Viewer = class Viewer {
   w = null;
@@ -6,6 +7,17 @@ exports.Viewer = class Viewer {
   constructor(w = Windower.create("viewer")) {
     console.info("Viewer#constructor");
     this.w = w;
+  }
+
+  init() {
+    console.info("Viewer#init");
+    // this.hide();
+
+    ipcMain.on("SNIPPED", (_, data) => {
+      if (data.length > 0) {
+        this.show();
+      }
+    });
   }
 
   hide() {

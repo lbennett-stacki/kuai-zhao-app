@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
-const { Versioner } = require("../versioner");
+const { Versioner } = require("../../utils/versioner");
 
 class ElectronAPI {
   register() {

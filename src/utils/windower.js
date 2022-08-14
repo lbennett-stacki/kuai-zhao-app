@@ -4,6 +4,7 @@ const { BrowserWindow } = require("electron");
 exports.Windower = class Windower {
   w = null;
   type = null;
+
   constructor(type, options = { webPreferences: {} }) {
     this.type = type;
     this.w = new BrowserWindow({
@@ -11,15 +12,14 @@ exports.Windower = class Windower {
       fullscreen: false,
       ...options,
       webPreferences: {
-        preload: join(__dirname, type, "preload.js"),
+        preload: join(__dirname, "../", type, "electron/preload.js"),
         ...(options.webPreferences ? options.webPreferences : {}),
       },
     });
   }
 
   register() {
-    this.w.webContents.openDevTools();
-    this.w.loadFile(join(__dirname, this.type, "index.html"));
+    this.w.loadFile(join(__dirname, "../", this.type, "ui/dist/index.html"));
   }
 
   send(message, source) {
@@ -41,8 +41,12 @@ exports.Windower = class Windower {
     this.w.show();
   }
 
-  static create(type = "capturer") {
-    const windower = new Windower(type);
+  on(...args) {
+    this.w.on(...args);
+  }
+
+  static create(type = "capturer", options = {}) {
+    const windower = new Windower(type, options);
     windower.register();
 
     return windower;
